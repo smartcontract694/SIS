@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+pragma solidity 0.8.6;
+
+
+///////////////////////
+///Packaging SC////
+//////////////////////
+
+contract Packaging{
+
+address owner;//SAP from the SAF
+address KPImanager;//from the company
+bytes32 agreementContractHash;//agreement between the SAF and the company
+
+
+event agreementContractHashAnnounced(bytes32 hash);
+
+
+constructor (address manager, bytes32 hash ){
+    owner = msg.sender;//owner is associated with the SAF
+    KPImanager = manager;
+    agreementContractHash = hash;
+    emit agreementContractHashAnnounced(hash);
+}
+ modifier onlyManager{
+      require(msg.sender == KPImanager);
+      _;
+    }
+event BiodegradablePackagingResourcesOrdered(address source, address KPImanager, uint amount, bytes32 hash);
+event RecycablePackagingResourcesOrdered(address source, address KPImanager, uint amount, bytes32 hash);
+event PlasticNonRecycableResourscesOrdered(address source, address KPImanager, uint amount, bytes32 hash);
+event AssessmentDetails(address KPImanager, bytes32 hash);
+function orderBiodegradablePackagingResources(address source, uint amount, bytes32 hash) onlyManager public
+{
+    emit BiodegradablePackagingResourcesOrdered(source, msg.sender, amount, hash);
+
+}
+
+function orderRecycablePackagingResources(address source, uint amount, bytes32 hash) onlyManager public{
+    emit RecycablePackagingResourcesOrdered(source, msg.sender, amount, hash);
+}
+
+function orderPlasticNonRecycableResoursces(address source, uint amount, bytes32 hash) onlyManager public {
+    emit PlasticNonRecycableResourscesOrdered(source, msg.sender, amount, hash);
+}
+
+function conductPakcgaingAssessment(bytes32 hash) onlyManager public{
+    emit AssessmentDetails(msg.sender, hash);
+
+}
+}
