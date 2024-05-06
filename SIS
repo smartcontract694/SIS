@@ -1,0 +1,140 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+pragma solidity 0.8.6;
+import "Registration.sol";
+///////////////////////
+///SIS SC/
+//////////////////////
+
+contract SIS{
+
+address owner;
+
+uint public packagingScore;
+uint public materialSourcingScore;
+uint public supplychainScore;
+uint public eolManagementScore;
+uint public productionProcessScore;
+uint public consumerUseScore;
+uint public certificationScore;
+Registration registration;
+
+event NewKPIScoreSubmitted(address KPImanager, uint KPIscore);
+event NewSISCalculated(address caller,uint totalSum, uint finalSIScore);
+
+constructor(uint p, uint m, uint s, uint e, uint pp, uint co, uint ce, address reg){
+    owner = msg.sender;
+packagingScore = p;
+materialSourcingScore = m;
+supplychainScore = s;
+eolManagementScore = e;
+productionProcessScore = pp;
+consumerUseScore = co;
+certificationScore = ce;
+registration = Registration(reg);
+}
+ modifier onlyOwner{
+      require(msg.sender == owner);
+      _;
+    }
+
+
+    modifier onlypackagingManager{
+        require(msg.sender == registration.packagingKPI());
+        _;
+    }
+modifier onlyproductionProcessManager{
+        require(msg.sender == registration.productionProcessKPI());
+        _;
+    }
+modifier onlySupplyChainTransparencyManager{
+        require(msg.sender == registration.supplychainTransparencySC());
+        _;
+    }
+modifier onlyConsumerUseManager{
+        require(msg.sender == registration.consumerUseSC());
+        _;
+    }
+modifier onlyCertificationSC{
+        require(msg.sender == registration.certificationSC());
+        _;
+    }
+modifier onlyeolManagementSC{
+        require(msg.sender == registration.eolManagementSC());
+        _;
+    }
+modifier onlyMaterialSourcingSC{
+        require(msg.sender == registration.materialSourcingSC());
+        _;
+    }
+
+function updatCertificationScore(uint score) public onlyCertificationSC
+{
+    certificationScore = score;
+    emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+    
+}
+function updateConsumerUseScore(uint score) public onlyConsumerUseManager
+{
+    consumerUseScore = score;
+    emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+    
+}
+function updateolManagementScore(uint score) public onlyeolManagementSC
+{
+    eolManagementScore = score;
+     emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+   
+}
+function updateMaterialSourcingScore(uint score) public onlyMaterialSourcingSC
+{
+    materialSourcingScore = score;
+     emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+   
+}
+   
+
+function updatepackagingScore(uint score) public onlypackagingManager
+{
+    packagingScore = score;
+    emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+    
+}
+
+function updateproductionProcessScore(uint score) public onlyproductionProcessManager
+{
+    productionProcessScore = score;
+    emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+    
+}
+
+function updateSupplyChainTransparencyScore(uint score) public onlySupplyChainTransparencyManager
+{
+    supplychainScore = score;
+    emit NewKPIScoreSubmitted(msg.sender, score);
+    calculateSIS(score);
+    
+}
+
+
+function calculateSIS(uint newScore)    internal
+{
+   uint totalSum = packagingScore +
+                   materialSourcingScore +
+                   supplychainScore +
+                   eolManagementScore +
+                   productionProcessScore +
+                   consumerUseScore +
+                   certificationScore;
+    totalSum = totalSum*10;//integer devision next step
+    uint finalScore = totalSum/7;
+    emit NewSISCalculated(msg.sender, totalSum, finalScore);
+}
+
+
+}
