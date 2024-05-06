@@ -1,0 +1,82 @@
+
+pragma solidity 0.8.6;
+import "Registration.sol";
+
+
+//Sustainability Assurance Firm SC
+contract SAF{
+address owner;
+Registration registration;
+
+
+//save the last score for each KPI
+uint packagingScore;
+uint materialSourcingScore;
+uint supplychainScore;
+uint eolManagementScore;
+uint productionProcessScore;
+uint consumerUseScore;
+uint certificationScore;
+
+
+//1:eolManagementSC, 2:certificationSC, 3:consumerUseSC, 4:materialSourcingSC,
+   //5:supplychainTransparencySC, 6:packagingKPIowner, 7: productionProcessKPIowner
+constructor(address regAddress) public{
+       owner= msg.sender;
+       registration = Registration(regAddress);
+    }
+   
+
+
+mapping(address=>bool) RegisteredKPImanagers;
+
+modifier onlyOwner(){
+    require(msg.sender == owner);
+    _;
+}
+
+modifier onlyKPImanagers(){
+    require((msg.sender == registration.certificationSC()) 
+    || (msg.sender == registration.packagingKPI()) 
+    || (msg.sender == registration.productionProcessKPI()) 
+    || (msg.sender == registration.supplychainTransparencySC()) 
+    || (msg.sender == registration.consumerUseSC()) 
+    || (msg.sender == registration.eolManagementSC()) 
+    || (msg.sender == registration.materialSourcingSC())     
+    );
+    _;
+}
+
+
+
+event SustainabilityPackagingReportsSubmittedSuccessfully(address KPImanager, bytes32 hash,uint timestamp); 
+event KPIScore(uint KPItype, address KPISCaddress,bytes32 hash, bytes32 scoreHash, uint timestampOfIssue, uint expiryTimestamp, uint score);
+
+//0x0000000000000000000000000000000000000000000000000000006d6168616d
+function SubmitReports(bytes32 hash) onlyKPImanagers public{
+    emit SustainabilityPackagingReportsSubmittedSuccessfully(msg.sender, hash, block.timestamp);
+}
+
+function ProvideKPIscore(uint KPItype, address SCaddress, bytes32 reportHash,
+bytes32 scoreHash, uint score,uint duration) onlyOwner public{
+    registration.IsFirmRegistered(msg.sender, address(this));
+     require(KPItype > 0  && KPItype < 8, "Error KPItype must be between 0 and 8");
+        if(KPItype == 1)
+        eolManagementScore = score;
+        else if (KPItype == 2)
+        certificationScore = score;
+        else if (KPItype == 3)
+        consumerUseScore = score;
+        else if(KPItype == 4)
+        materialSourcingScore = score;
+        else if(KPItype == 5)
+        supplychainScore = score;
+        else if(KPItype == 6)
+        packagingScore = score;
+        else if(KPItype == 7)
+        productionProcessScore = score;
+        
+        emit KPIScore(KPItype, SCaddress, reportHash, scoreHash, block.timestamp, block.timestamp+duration,score);  
+    }
+
+}
