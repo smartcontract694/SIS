@@ -1,0 +1,57 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+pragma solidity 0.8.6;
+
+
+///////////////////////
+///EOLmanagement SC/
+//////////////////////
+
+contract EOLmanagement{
+
+address owner;//SAP from the SAF
+address KPImanager;//from the company
+bytes32 agreementContractHash;//agreement between the SAF and the company
+
+
+event agreementContractHashAnnounced(bytes32 hash);
+
+
+constructor (address manager, bytes32 hash ){
+    owner = msg.sender;//owner is associated with the SAF
+    KPImanager = manager;
+    agreementContractHash = hash;
+    emit agreementContractHashAnnounced(hash);
+}
+ modifier onlyManager{
+      require(msg.sender == KPImanager);
+      _;
+    }
+
+event RecyclingInstructions(bytes32 hash, bool result);
+event RecyclingTakeBackProgram(bytes32 hash,bool result);
+event ProductMaintenance(bytes32 hash, bool result);
+event ProductTakeBackProgram(bytes32 hash, bool result);
+event AssessmentDetails(address KPImanager, bytes32 hash);
+
+function provideRecyclingInstructions(bytes32 hash, bool result) onlyManager public{
+    emit RecyclingInstructions(hash, result);
+}
+
+function provideRecyclingTakeBackProgram(bytes32 hash, bool result) onlyManager public{
+    emit RecyclingTakeBackProgram(hash, result);
+}
+
+function provideProductMaintenance(bytes32 hash, bool result) onlyManager public{
+    emit ProductMaintenance(hash, result);
+}
+
+function provideProductTakeBackProgram(bytes32 hash, bool result) onlyManager public{
+    emit ProductTakeBackProgram(hash, result);
+}
+
+function conductEOLAssessment(bytes32 hash) onlyManager public{
+    emit AssessmentDetails(msg.sender, hash);
+
+}
+
+}
