@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
+pragma solidity 0.8.6;
+
+
+///////////////////////
+///Registration SC////
+//////////////////////
+
+contract Registration{
+   
+    address registrationManager; //owner
+    mapping(address=>bool) SAPs;//sustainability assurance personnel
+    mapping (address=>address) SAPFirm;//each SAP is associated with a Firm
+    address public SISowner;//main SC owner for calculating final SIS
+    address public packagingKPI;//packaging SC manager
+    address public productionProcessKPI;// production process SC manager 
+    address public supplychainTransparencySC;// supply chain transparency SC manager
+    address public consumerUseSC;// consumer use SC manager
+    address public eolManagementSC;//eol management SC manager
+    address public certificationSC;// certification SC manager
+    address public materialSourcingSC;// material sourcing SC manager
+   
+    constructor() public{
+       registrationManager= msg.sender;
+    }
+   
+    modifier onlyRegistrationManager{
+      require(msg.sender == registrationManager);
+      _;
+    }
+   
+   //KPI owners
+   //1: eolManagementSC, 2:certificationSC, 3:consumerUseSC, 4:materialSourcingSC,
+   //5:supplychainTransparencySC, 6:packagingKPI, 7: productionProcessKPI
+    function RegisterKPImanager(address a, uint KPIname) onlyRegistrationManager public{
+        require(KPIname > 0 && KPIname < 8, "Error KPIname must be between 0 and 8");
+        if(KPIname == 1)
+        eolManagementSC = a;
+        else if (KPIname == 2)
+        certificationSC = a;
+        else if (KPIname == 3)
+        consumerUseSC = a;
+        else if(KPIname == 4)
+        materialSourcingSC = a;
+        else if(KPIname == 5)
+        supplychainTransparencySC = a;
+        else if(KPIname == 6)
+        packagingKPI = a;
+        else if(KPIname == 7)
+        productionProcessKPI = a;
+        
+    }
+   
+   function  RegisterSISOwner(address a) onlyRegistrationManager public{
+        SISowner = a;
+   }
+
+    
+    function RegisterSAP(address personnel, address firmSC) onlyRegistrationManager public{
+        SAPs[personnel] = true;
+        SAPFirm[personnel] = firmSC;
+
+    }
+    
+    function IsSAPregistered(address personnel) public{
+        require(SAPs[personnel]);
+        
+    }
+
+    function IsFirmRegistered(address owner, address firm) public{
+        require(SAPFirm[owner] == firm );
+    }
+
+
+}
